@@ -197,7 +197,7 @@ class PrivateRecipeAPITests(TestCase):
             'price': Decimal('2.50'),
             'tags': [{'name': 'Dinner'}, {'name': 'Thai'}],
         }
-        res = self.client.post(RECIPES_URL, payload)
+        res = self.client.post(RECIPES_URL, payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         recipes = Recipe.objects.filter(user=self.user)
