@@ -21,13 +21,16 @@ from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 RECIPES_URL = reverse('recipe:recipe-list')
 
+
 def detail_url(recipe_id):
     '''Create and return a recipe detail URL.'''
     return reverse('recipe:recipe-detail', args=[recipe_id])
 
+
 def image_upload_url(recipe_id):
     '''Create and return an image upload URL.'''
     return reverse('recipe:recipe-upload-image', args=[recipe_id])
+
 
 def create_recipe(user, **params):
     '''Create and return a simple recipe.'''
@@ -42,6 +45,7 @@ def create_recipe(user, **params):
 
     recipe = Recipe.objects.create(user=user, **defaults)
     return recipe
+
 
 def create_user(**params):
     '''Create and return a new user.'''
@@ -66,7 +70,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user(email='test@example.com', password='testpass123')
+        self.user = create_user(email='test@example.com',
+                                password='testpass123', )
         self.client.force_authenticate(self.user)
 
     def test_retrive_recipes(self):
@@ -84,7 +89,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_recipe_list_limited_to_user(self):
         '''Test list of recipes is limited to authenticated user.'''
-        other_user = create_user(email='other@example.com', password='otherpass123',)
+        other_user = create_user(email='other@example.com',
+                                 password='otherpass123', )
         create_recipe(user=other_user)
         create_recipe(user=self.user)
 
@@ -167,7 +173,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_update_user_returns_error(self):
         '''Test changing the recipe user results in an error.'''
-        new_user = create_user(email='newuser@example.com', password='newpass123')
+        new_user = create_user(email='newuser@example.com',
+                               password='newpass123')
         recipe = create_recipe(user=self.user)
 
         payload = {'user': new_user.id}
@@ -189,7 +196,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_delete_other_users_recipe_error(self):
         '''Test deleting another user's recipe results in an error.'''
-        new_user = create_user(email='newuser@example.com', password='newpass123')
+        new_user = create_user(email='newuser@example.com',
+                               password='newpass123')
         recipe = create_recipe(user=new_user)
 
         url = detail_url(recipe.id)
@@ -308,7 +316,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_create_recipe_with_existing_ingredient(self):
         '''Test creating a recipe with existing ingredients.'''
-        ingredient = Ingredient.objects.create(user=self.user, name='Cauliflower')
+        ingredient = Ingredient.objects.create(user=self.user,
+                                               name='Cauliflower')
         payload = {
             'title': 'Cauliflower Tacos',
             'time_minutes': 60,
@@ -344,7 +353,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_update_recipe_assign_ingredient(self):
         '''Test assigning an existing ingredient when updating a recipe.'''
-        ingredient_cauliflower = Ingredient.objects.create(user=self.user, name='Cauliflower')
+        ingredient_cauliflower = Ingredient.objects.create(user=self.user,
+                                                           name='Cauliflower')
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient_cauliflower)
 
@@ -359,7 +369,8 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_clear_recipe_ingredients(self):
         '''Test clearing a recipe's ingredients.'''
-        ingredient = Ingredient.objects.create(user=self.user, name='Cauliflower')
+        ingredient = Ingredient.objects.create(user=self.user,
+                                               name='Cauliflower')
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient)
 
@@ -393,7 +404,8 @@ class ImageUploadTests(TestCase):
             image = Image.new('RGB', (10, 10))
             image.save(image_file, format='JPEG')
             image_file.seek(0)
-            res = self.client.post(url, {'image': image_file}, format='multipart')
+            res = self.client.post(url, {'image': image_file},
+                                   format='multipart')
 
         self.recipe.refresh_from_db()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -403,6 +415,7 @@ class ImageUploadTests(TestCase):
     def test_upload_image_bad_request(self):
         '''Test uploading an invalid image.'''
         url = image_upload_url(self.recipe.id)
-        res = self.client.post(url, {'image': 'notanimage'}, format='multipart')
+        res = self.client.post(url, {'image': 'notanimage'},
+                               format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
