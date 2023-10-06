@@ -358,7 +358,8 @@ class PrivateRecipeAPITests(TestCase):
         recipe = create_recipe(user=self.user)
         recipe.ingredients.add(ingredient_cauliflower)
 
-        ingredient_salt = Ingredient.objects.create(user=self.user, name='Salt')
+        ingredient_salt = Ingredient.objects.create(user=self.user,
+                                                    name='Salt')
         payload = {'ingredients': [{'name': 'Salt'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')
